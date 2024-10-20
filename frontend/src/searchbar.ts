@@ -1,9 +1,17 @@
 export function setupCounter(searchBox: HTMLInputElement) {
   const suggestions = ['Python', 'Rust', 'Java', 'C++'];
 
+  enum Mode {
+    Unfocused,
+    FocusedIdle,
+    UserTyping
+  }
+
+  let mode: Mode = Mode.Unfocused;
+
   let suggestionIndex = 0;
-  let typingTimer: number;
-  let inactivityTimer: number;
+  let typingTimer: NodeJS.Timeout;
+  let inactivityTimer: NodeJS.Timeout;
   const inactivityDelay = 3000;
 
   function typeSuggestion(suggestion: string) {
@@ -23,7 +31,7 @@ export function setupCounter(searchBox: HTMLInputElement) {
   }
 
   function cycleSuggestion() {
-    const suggestion = suggestions[suggestionIndex];
+    const suggestion = suggestions[suggestionIndex] + "...";
     typeSuggestion(suggestion);
   
     suggestionIndex = (suggestionIndex + 1) % suggestions.length;
@@ -32,27 +40,58 @@ export function setupCounter(searchBox: HTMLInputElement) {
   function resetInactivityTimer() {
     clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(() => {
+
+      if (mode == Mode.UserTyping && searchBox.value != "") {
+        resetInactivityTimer();
+        return;
+      }
+
+      if (mode == Mode.UserTyping) {
+        mode = Mode.FocusedIdle;
+        searchBox.classList.remove('strong-text');
+      }
+
       cycleSuggestion();
       resetInactivityTimer();
     }, inactivityDelay);
   }
 
   searchBox.addEventListener('focus', () => {
+    mode = Mode.FocusedIdle;
+
     clearInterval(typingTimer);
-    clearInterval(typingTimer);
+    clearInterval(inactivityTimer);
     searchBox.value = '';
+
+    resetInactivityTimer();
+  });
+
+  searchBox.addEventListener('blur', () => {
+    mode = Mode.Unfocused;
+    searchBox.classList.remove('strong-text');
+
+    cycleSuggestion();
+    resetInactivityTimer();
   });
 
   searchBox.addEventListener('keydown', () => {
-    clearInterval(typingTimer);
-    clearTimeout(inactivityTimer);
-    searchBox.value = '';
-    resetInactivityTimer();
-  })
+    if (mode == Mode.Unfocused) {
+      return;
+    }
+    else if (mode == Mode.FocusedIdle) {
+      mode = Mode.UserTyping;
 
-  searchBox.addEventListener('blur', () => {
-    cycleSuggestion();
-  });
+      clearInterval(typingTimer);
+      clearTimeout(inactivityTimer);
+      searchBox.value = '';
+      searchBox.classList.add('strong-text');
+      resetInactivityTimer();
+    }
+    else if (mode == Mode.UserTyping) {
+      clearTimeout(inactivityTimer);
+      resetInactivityTimer();
+    }
+  })
 
 
   resetInactivityTimer();

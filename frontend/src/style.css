@@ -96,3 +96,6 @@ input:focus {
   border-right: 2px solid var(--primary-color);
 }
 
+.strong-text {
+  color: var(--text-color);
+}

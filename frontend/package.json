@@ -1,18 +1,22 @@
 {
   "name": "frontend",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "devDependencies": {
+    "@types/google-protobuf": "^3.15.12",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.8"
+  },
+  "private": true,
   "scripts": {
     "dev": "bunx --bun vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
-  "devDependencies": {
-    "typescript": "^5.5.3",
-    "vite": "^5.4.8"
-  },
+  "type": "module",
   "dependencies": {
-    "protobuf": "^0.11.1"
+    "google-protobuf": "^3.21.4",
+    "protobufjs": "^7.4.0",
+    "protoc-gen-js": "^3.21.2",
+    "protoc-gen-ts": "^0.8.7"
   }
 }

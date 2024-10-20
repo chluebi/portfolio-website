@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package portfolio;
+
+message Projects {
+    repeated Project projects = 1;
+}
+
+message Project {
+    string title = 1;
+    optional string url = 2;
+    repeated string tags = 3;
+}
