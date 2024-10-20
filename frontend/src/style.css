@@ -45,6 +45,11 @@ h1 {
   line-height: 1.1;
 }
 
+h2 {
+  font-size: 2.3em;
+  line-height: 1;
+}
+
 #app {
   display: flex;
   flex-direction: column;
@@ -99,3 +104,22 @@ input:focus {
 .strong-text {
   color: var(--text-color);
 }
+
+#results {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.project {
+  background-color: var(--background-color);
+  border: 3px solid var(--secondary-color-passive);
+  border-radius: 5px;
+
+  padding: 0.5em;
+}
+
+.project-folded {
+  display: flex;
+}
+

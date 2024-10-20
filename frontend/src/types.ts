@@ -1,0 +1,1 @@
+export type searchCallback = (arg: String) => void;

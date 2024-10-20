@@ -7,7 +7,9 @@ message Projects {
 }
 
 message Project {
-    string title = 1;
-    optional string url = 2;
-    repeated string tags = 3;
+    int32 id = 1;
+    string title = 2;
+    optional string url = 3;
+    repeated string languages = 4;
+    repeated string tags = 5;
 }

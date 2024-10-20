@@ -1,4 +1,6 @@
-export function setupCounter(searchBox: HTMLInputElement) {
+import { searchCallback } from './types.ts'
+
+export function setupCounter(searchBox: HTMLInputElement, callback: searchCallback) {
   const suggestions = ['Python', 'Rust', 'Java', 'C++'];
 
   enum Mode {
@@ -31,7 +33,7 @@ export function setupCounter(searchBox: HTMLInputElement) {
   }
 
   function cycleSuggestion() {
-    const suggestion = suggestions[suggestionIndex] + "...";
+    const suggestion = suggestions[suggestionIndex] + " projects...";
     typeSuggestion(suggestion);
   
     suggestionIndex = (suggestionIndex + 1) % suggestions.length;
@@ -91,6 +93,8 @@ export function setupCounter(searchBox: HTMLInputElement) {
       clearTimeout(inactivityTimer);
       resetInactivityTimer();
     }
+
+    callback(searchBox.value);
   })
 
 
