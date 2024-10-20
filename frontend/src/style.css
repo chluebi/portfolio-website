@@ -1,0 +1,98 @@
+:root {
+  --primary-color: #646cff;
+  --primary-color-passive: #5e6086;
+  
+  --secondary-color: #5184db;
+  --secondary-color-passive: #5e6d86;
+
+  --background-color: #242424;
+
+  --text-color: #f3eedd;
+  --text-color-weak: rgba(243, 238, 221, 0.5);
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: var(--text-color);
+  background-color: var(--background-color);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: var(--primary-color);
+  text-decoration: inherit;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  gap: 5em;
+
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+
+input {
+  width: 25em;
+
+  padding: 0.6em 1.2em;
+  font-size: 2em;
+  font-weight: 500;
+  font-family: inherit;
+  color: var(--text-color-weak);
+  background-color: var(--primary-color-passive);
+  cursor: pointer;
+  
+  border: 3px solid var(--primary-color-passive);
+  border-color: var(--primary-color-passive);
+  border-radius: 8px;
+  outline: none;
+
+  transition: border-color 0.3s ease;
+}
+input:hover {
+  outline: none;
+}
+input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+@keyframes typing {
+  from { }
+  to { }
+}
+
+.typing-animation {
+  animation: typing 0.5s steps(30, end) forwards;
+  color: var(--text-color-weak);
+  white-space: nowrap;
+  overflow: hidden;
+  border-right: 2px solid var(--primary-color);
+}
+
