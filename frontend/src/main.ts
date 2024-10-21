@@ -1,17 +1,20 @@
 import './style.css'
-import { searchCallback } from './types.ts'
-import { setupCounter } from './searchbar.ts'
+import { setupSearch } from './searchbar.ts'
 import { projects } from './testdata.ts'
 import { setupProject } from './project.ts'
 
 
 function search() {
   const projectsDiv = document.querySelector<HTMLDivElement>("#results");
+  if (projectsDiv) {
+    projectsDiv.innerHTML = "";
+  }
 
-  projects.map((p) => {
+  projects.map((p, i) => {
     const projectsElement = document.createElement('a')
     projectsElement.id = 'project' + p.id;
     projectsElement.classList.add('project');
+    projectsElement.setAttribute("tabindex", "" + (i+1));
     projectsDiv?.appendChild(projectsElement);
 
     setupProject(projectsElement, p)
@@ -19,7 +22,7 @@ function search() {
 }
 
 
-setupCounter(document.querySelector<HTMLInputElement>('#searchBox')!, search)
+setupSearch(document.querySelector<HTMLInputElement>('#searchBox')!, search)
 
 
 

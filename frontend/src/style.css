@@ -48,6 +48,12 @@ h1 {
 h2 {
   font-size: 2.3em;
   line-height: 1;
+  text-align: left;
+}
+
+p {
+  font-size: 1em;
+  text-align: left;
 }
 
 #app {
@@ -55,15 +61,19 @@ h2 {
   flex-direction: column;
   gap: 5em;
 
-  max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  align-items: center;
 }
 
 
 input {
-  width: 25em;
+  box-sizing: border-box;
+
+  min-width: 8em;
+  width: 40vw;
+  max-width: 30em;
 
   padding: 0.6em 1.2em;
   font-size: 2em;
@@ -109,6 +119,10 @@ input:focus {
   display: flex;
   flex-direction: column;
   gap: 2em;
+
+  min-width: 16em;
+  width: 40vw;
+  max-width: 60em;
 }
 
 .project {
@@ -116,7 +130,11 @@ input:focus {
   border: 3px solid var(--secondary-color-passive);
   border-radius: 5px;
 
-  padding: 0.5em;
+  padding: 1em;
+}
+
+.project-focus {
+  border: 3px solid var(--secondary-color);
 }
 
 .project-folded {

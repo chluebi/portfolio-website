@@ -7,6 +7,13 @@ export function setupProject(linkElement: HTMLAnchorElement, projectData: portfo
         unfolded = !unfolded;
         reload();
     })
+    linkElement.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            unfolded = !unfolded;
+            reload();
+        }
+    })
 
     function reload() {
         linkElement.innerHTML = "";
@@ -15,10 +22,13 @@ export function setupProject(linkElement: HTMLAnchorElement, projectData: portfo
         titleElement.innerHTML = projectData.title;
         linkElement.appendChild(titleElement);
 
+        linkElement.classList.remove("project-focus")
         if (unfolded) {
+            linkElement.classList.add("project-focus")
 
-        } else {
-            
+            const descriptionElement = document.createElement('p');
+            descriptionElement.innerHTML = projectData.description;
+            linkElement.appendChild(descriptionElement);
         }
     }
     reload();

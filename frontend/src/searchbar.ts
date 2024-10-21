@@ -1,6 +1,6 @@
 import { searchCallback } from './types.ts'
 
-export function setupCounter(searchBox: HTMLInputElement, callback: searchCallback) {
+export function setupSearch(searchBox: HTMLInputElement, callback: searchCallback) {
   const suggestions = ['Python', 'Rust', 'Java', 'C++'];
 
   enum Mode {
