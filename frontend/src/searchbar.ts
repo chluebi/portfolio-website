@@ -94,7 +94,7 @@ export function setupSearch(searchBox: HTMLInputElement, callback: searchCallbac
       resetInactivityTimer();
     }
 
-    callback(searchBox.value);
+    setTimeout(() => callback(searchBox.value), 0);
   })
 
 

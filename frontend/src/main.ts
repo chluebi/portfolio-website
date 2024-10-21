@@ -4,7 +4,7 @@ import { projects } from './testdata.ts'
 import { setupProject } from './project.ts'
 
 
-function search() {
+function search(s: String) {
   const projectsDiv = document.querySelector<HTMLDivElement>("#results");
   if (projectsDiv) {
     projectsDiv.innerHTML = "";
@@ -19,6 +19,8 @@ function search() {
 
     setupProject(projectsElement, p)
   })
+
+  history.replaceState({}, 'Search Results', '/' + s);
 }
 
 
