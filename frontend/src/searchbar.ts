@@ -42,7 +42,6 @@ export function setupSearch(searchBox: HTMLInputElement, callback: searchCallbac
   function resetInactivityTimer() {
     clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(() => {
-
       if (mode == Mode.UserTyping && searchBox.value != "") {
         resetInactivityTimer();
         return;
@@ -84,21 +83,30 @@ export function setupSearch(searchBox: HTMLInputElement, callback: searchCallbac
       mode = Mode.UserTyping;
 
       clearInterval(typingTimer);
-      clearTimeout(inactivityTimer);
       searchBox.value = '';
       searchBox.classList.add('strong-text');
       resetInactivityTimer();
     }
     else if (mode == Mode.UserTyping) {
-      clearTimeout(inactivityTimer);
       resetInactivityTimer();
     }
 
     setTimeout(() => callback(searchBox.value), 0);
   })
 
+  function hardSetSearch(s: String) {
+    searchBox.focus();
+    mode = Mode.UserTyping;
+    resetInactivityTimer();
+    searchBox.classList.add('strong-text');
+
+    searchBox.value = s.toString();
+  }
+
 
   resetInactivityTimer();
   cycleSuggestion();
+
+  return hardSetSearch;
 }
 

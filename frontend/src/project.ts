@@ -1,6 +1,8 @@
 import { portfolio } from './generated/portfolio';
+import { setupTag } from './tag';
+import { searchCallback } from './types';
 
-export function setupProject(linkElement: HTMLAnchorElement, projectData: portfolio.Project) {
+export function setupProject(linkElement: HTMLAnchorElement, projectData: portfolio.Project, callback: searchCallback) {
     let unfolded = false;
 
     linkElement.addEventListener('click', () => {
@@ -22,14 +24,32 @@ export function setupProject(linkElement: HTMLAnchorElement, projectData: portfo
         titleElement.innerHTML = projectData.title;
         linkElement.appendChild(titleElement);
 
-        linkElement.classList.remove("project-focus")
+        linkElement.classList.remove("project-focus");
+        linkElement.classList.remove("project-unfocus");
         if (unfolded) {
             linkElement.classList.add("project-focus")
 
             const descriptionElement = document.createElement('p');
             descriptionElement.innerHTML = projectData.description;
             linkElement.appendChild(descriptionElement);
+        } else {
+            linkElement.classList.add("project-unfocus")
         }
+
+        const tagsElement = document.createElement('div');
+        tagsElement.classList.add('tags');
+
+        projectData.tags.map((tag) => {
+            const tagElement = document.createElement('a');
+            tagElement.innerHTML = tag;
+            tagElement.classList.add('tag');
+            setupTag(tagElement, callback);
+
+            tagsElement.appendChild(tagElement);
+        })
+
+        linkElement.appendChild(tagsElement);
+
     }
     reload();
 }

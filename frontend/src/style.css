@@ -6,6 +6,7 @@
   --secondary-color-passive: #5e6d86;
 
   --background-color: #242424;
+  --background-color-bright: #343444;
 
   --text-color: #f3eedd;
   --text-color-weak: rgba(243, 238, 221, 0.5);
@@ -49,6 +50,8 @@ h2 {
   font-size: 2.3em;
   line-height: 1;
   text-align: left;
+
+  width: 50em;
 }
 
 p {
@@ -126,15 +129,60 @@ input:focus {
 }
 
 .project {
-  background-color: var(--background-color);
-  border: 3px solid var(--secondary-color-passive);
-  border-radius: 5px;
+  display: flex;
+  align-content: center;
 
+  
+
+  color: var(--text-color);
+  background-color: var(--background-color);
+  border-radius: 5px;
   padding: 1em;
 }
 
+.project-unfocus {
+  flex-direction: row;
+  border: 3px solid var(--secondary-color-passive);
+
+  gap: 10em;
+
+  justify-content: space-between;
+}
+
 .project-focus {
+  flex-direction: column;
+  gap: 3em;
   border: 3px solid var(--secondary-color);
+}
+
+.tags {
+  display: flex;
+  flex-direction: row;
+  gap: 1em;
+
+  align-self: center;
+  height: 3em;
+}
+
+.project-unfocus .tags {
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+.project-focus .tags {
+  flex-wrap: wrap;
+  height: fit-content;
+}
+
+.tag {
+  border: 3px solid var(--primary-color);
+  border-radius: 20%;
+  padding: 0.5em;
+}
+
+.tag:hover {
+  background-color: var(--background-color-bright);
+  border: 3px solid var(--primary-color);
 }
 
 .project-folded {

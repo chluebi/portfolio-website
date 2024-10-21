@@ -4,6 +4,10 @@ import { projects } from './testdata.ts'
 import { setupProject } from './project.ts'
 
 
+const inputElement = document.querySelector<HTMLInputElement>('#searchBox');
+
+const resetSearch = setupSearch(inputElement!, search);
+
 function search(s: String) {
   const projectsDiv = document.querySelector<HTMLDivElement>("#results");
   if (projectsDiv) {
@@ -17,15 +21,17 @@ function search(s: String) {
     projectsElement.setAttribute("tabindex", "" + (i+1));
     projectsDiv?.appendChild(projectsElement);
 
-    setupProject(projectsElement, p)
+    setupProject(projectsElement, p, search)
   })
 
-  history.replaceState({}, 'Search Results', '/' + s);
+  history.replaceState({}, 'Search Results', '/?s=' + s);
+
+  resetSearch(s);
 }
 
-
-setupSearch(document.querySelector<HTMLInputElement>('#searchBox')!, search)
-
-
+const url = new URL(window.location.href)
+if (url.searchParams.get('s')) {
+  search(new String(url.searchParams.get('s')))
+}
 
 
