@@ -1,6 +1,6 @@
-import { searchCallback } from './types.ts'
+import { SearchCallback } from './types.js'
 
-export function setupSearch(searchBox: HTMLInputElement, callback: searchCallback) {
+export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallback) {
   const suggestions = ['Python', 'Rust', 'Java', 'C++'];
 
   enum Mode {
@@ -12,8 +12,8 @@ export function setupSearch(searchBox: HTMLInputElement, callback: searchCallbac
   let mode: Mode = Mode.Unfocused;
 
   let suggestionIndex = 0;
-  let typingTimer: NodeJS.Timeout;
-  let inactivityTimer: NodeJS.Timeout;
+  let typingTimer: number;
+  let inactivityTimer: number;
   const inactivityDelay = 3000;
 
   function typeSuggestion(suggestion: string) {
@@ -21,7 +21,7 @@ export function setupSearch(searchBox: HTMLInputElement, callback: searchCallbac
     searchBox.classList.add('typing-animation');
   
     let i = 0;
-    typingTimer = setInterval(() => {
+    typingTimer = window.setInterval(() => {
       if (i < suggestion.length) {
         searchBox.value += suggestion.charAt(i);
         i++;
@@ -41,7 +41,7 @@ export function setupSearch(searchBox: HTMLInputElement, callback: searchCallbac
 
   function resetInactivityTimer() {
     clearTimeout(inactivityTimer);
-    inactivityTimer = setTimeout(() => {
+    inactivityTimer = window.setTimeout(() => {
       if (mode == Mode.UserTyping && searchBox.value != "") {
         resetInactivityTimer();
         return;

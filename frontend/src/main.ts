@@ -1,7 +1,6 @@
-import './style.css'
-import { setupSearch } from './searchbar.ts'
-import { projects } from './testdata.ts'
-import { setupProject } from './project.ts'
+import { setupSearch } from './searchbar.js'
+import { projects } from './testdata.js'
+import { setupProject } from './project.js'
 
 
 const inputElement = document.querySelector<HTMLInputElement>('#searchBox');

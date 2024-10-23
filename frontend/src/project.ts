@@ -1,8 +1,7 @@
-import { portfolio } from './generated/portfolio';
-import { setupTag } from './tag';
-import { searchCallback } from './types';
+import { setupTag } from './tag.js';
+import { Project, SearchCallback } from './types.js';
 
-export function setupProject(linkElement: HTMLAnchorElement, projectData: portfolio.Project, callback: searchCallback) {
+export function setupProject(linkElement: HTMLAnchorElement, projectData: Project, callback: SearchCallback) {
     let unfolded = false;
 
     linkElement.addEventListener('click', () => {

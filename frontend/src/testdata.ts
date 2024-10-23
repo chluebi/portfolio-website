@@ -1,15 +1,14 @@
-import { portfolio } from './generated/portfolio';
+import { Project } from './types.js';
 
 
-export const projects: Array<portfolio.Project> = Array.from({ length: 100 }, (_, index) => index + 1).map((i) => {
-    const exampleProject: portfolio.Project = new portfolio.Project();
-    exampleProject.id = i;
-    exampleProject.title = "Project " + i;
-    exampleProject.description = "A longer description of the project is found here."
-    exampleProject.tags = ["a", "b", "c", "project" + i];
-    Array.from({ length: 100 }, (_, index) => index + 1).map((i) => {
-        exampleProject.tags.push(i.toString());
-    })
+export const projects: Array<Project> = Array.from({ length: 100 }, (_, index) => index + 1).map((i) => {
+    const exampleProject: Project = {
+        id: i,
+        title: "Project " + i,
+        description: "A longer description of the project is found here.",
+        languages: [],
+        tags: Array.from({ length: 100 }, (_, i) => (i + 1).toString())
+    }
     return exampleProject;
 });
 
