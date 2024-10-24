@@ -2,6 +2,11 @@ syntax = "proto3";
 
 package portfolio;
 
+message Query {
+    string uuid = 1;
+    string query = 2;
+}
+
 message Projects {
     repeated Project projects = 1;
 }
