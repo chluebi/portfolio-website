@@ -9,6 +9,6 @@
     "skipLibCheck": true,
     "lib": ["dom", "esnext"]
   },
-  "include": ["src/**/*", "generated"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

@@ -2,7 +2,7 @@ import { serve } from "bun";
 import { join } from "path";
 import { createConnection } from "net";
 
-import { portfolio } from "./generated/portfolio.ts";
+import { portfolio } from "./src/generated/portfolio.ts";
 
 const PORT = 3000;
 const PUBLIC_DIR = "./public";

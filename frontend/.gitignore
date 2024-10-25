@@ -9,7 +9,7 @@ lerna-debug.log*
 
 node_modules
 public/js
-generated
+src/generated
 *.local
 
 # Editor directories and files
