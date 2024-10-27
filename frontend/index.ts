@@ -3,6 +3,7 @@ import { join } from "path";
 import { createConnection } from "net";
 
 import { portfolio } from "./src/generated/portfolio.ts";
+import { Project } from "./src/types.ts";
 
 const BACKEND_HOST = Bun.env.BACKEND_HOST || "127.0.0.1";
 const BACKEND_PORT = Number(Bun.env.BACKEND_PORT) || 5000;
@@ -34,8 +35,19 @@ function connectToBackend(retries: number) {
     const response = portfolio.Response.deserializeBinary(data);
     const projects = response.projects.projects;
     
-    if (response.uuid) {
-      console.log("uuid " + response.uuid);
+    if (response.uuid && pendingResponses.has(response.uuid)) {
+      const resolve = pendingResponses.get(response.uuid);
+      const projectsJson: Array<Project> = projects.map((p) => {
+        return {
+          id: p.id,
+          title: p.title,
+          description: p.description,
+          url: p.url,
+          languages: p.languages,
+          tags: p.tags
+        }
+      });
+      resolve(projectsJson);
     }
   });
 
@@ -65,7 +77,7 @@ serve({
 
     if (url.pathname.startsWith("/api")) {
       const queryString = url.searchParams.get("q");
-      if (queryString) {
+      if (queryString && queryString.length !== 0) {
         const requestId = generateUniqueString(32);
 
         const responsePromise = new Promise((resolve) => {
@@ -77,9 +89,9 @@ serve({
         query.query = queryString;      
 
         client.write(query.serializeBinary());
-        const result = await responsePromise;
+        const results = await responsePromise;
 
-        return new Response(JSON.stringify({ result }), {
+        return new Response(JSON.stringify({ results: results }), {
           headers: { "Content-Type": "application/json" },
         });
       }
