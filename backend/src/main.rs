@@ -1,8 +1,13 @@
 use std::env;
 use std::net::TcpListener;
 mod socket;
+mod parse;
 
 fn main() {
+    parse::read();
+}
+
+fn run_socket() {
     let host_str = env::var("HOST").unwrap_or("127.0.0.1".to_string());
     let port_str = env::var("PORT").unwrap_or("5000".to_string());
     let addr = host_str + ":" + &port_str;
