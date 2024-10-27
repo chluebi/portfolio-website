@@ -4,13 +4,23 @@ services:
       context: .
       dockerfile: Frontend
     ports:
-      - "3000:3000"
-    depends_on:
-      - backend
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    networks:
+      - portfolio-network
+    environment:
+      - BACKEND_HOST=${BACKEND_HOST}
+      - BACKEND_PORT=${BACKEND_PORT}
+      - FRONTEND_PORT=${FRONTEND_PORT}
 
   backend:
     build:
       context: .
       dockerfile: Backend
-    ports:
-      - "5000:5000"
+    networks:
+      - portfolio-network
+    environment:
+      - HOST=${BACKEND_HOST}
+      - PORT=${BACKEND_PORT}
+
+networks:
+  portfolio-network:

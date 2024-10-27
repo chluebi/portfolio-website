@@ -1,10 +1,12 @@
-import { serve } from "bun";
+import { Socket, serve } from "bun";
 import { join } from "path";
 import { createConnection } from "net";
 
 import { portfolio } from "./src/generated/portfolio.ts";
 
-const PORT = 3000;
+const BACKEND_HOST = Bun.env.BACKEND_HOST || "127.0.0.1";
+const BACKEND_PORT = Number(Bun.env.BACKEND_PORT) || 5000;
+const PORT = Bun.env.FRONTEND_PORT || 3000;
 const PUBLIC_DIR = "./public";
 
 
@@ -17,28 +19,43 @@ function generateUniqueString(length: number): string {
 
 const pendingResponses: Map<string, any> = new Map();
 
-const client = createConnection({ port: 5000 }, () => {
-  console.log("Connected to server");
-});
+const MAX_RETRIES = 10;    // Number of retry attempts
+const RETRY_INTERVAL = 2000; // Delay between retries in milliseconds
 
-client.on("data", (data) => {
-  const response = JSON.parse(data.toString());
-  const { id, result } = response;
+let client: ReturnType<typeof createConnection>;
 
-  if (pendingResponses.has(id)) {
-    const resolve = pendingResponses.get(id);
-    resolve(result);
-    pendingResponses.delete(id);
-  }
-});
+function connectToBackend(retries: number) {
+  console.log("Trying to connect to http://" + BACKEND_HOST + ":" + BACKEND_PORT);
+  client = createConnection({ host: BACKEND_HOST, port: BACKEND_PORT }, () => {
+    console.log("Connected to server");
+  });
 
-client.on("end", () => {
-  console.log("Disconnected from server");
-});
+  client.on("data", (data) => {
+    const response = portfolio.Response.deserializeBinary(data);
+    const projects = response.projects.projects;
+    
+    if (response.uuid) {
+      console.log("uuid " + response.uuid);
+    }
+  });
 
-client.on("error", (err) => {
-  console.error(`Connection error: ${err.message}`);
-});
+  client.on("end", () => {
+    console.log("Disconnected from server");
+  });
+
+  client.on("error", (err) => {
+    console.error(`Connection error: ${err.message}`);
+    if (retries > 0) {
+      console.log(`Retrying connection in ${RETRY_INTERVAL / 1000} seconds...`);
+      setTimeout(() => connectToBackend(retries - 1), RETRY_INTERVAL);
+    } else {
+      console.error("Max retries reached. Could not connect to backend.");
+    }
+  });
+}
+
+// Start the connection with retry logic
+connectToBackend(MAX_RETRIES);
 
 serve({
   development: false,

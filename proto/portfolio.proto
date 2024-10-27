@@ -7,6 +7,11 @@ message Query {
     string query = 2;
 }
 
+message Response {
+    string uuid = 1;
+    Projects projects = 2;
+}
+
 message Projects {
     repeated Project projects = 1;
 }

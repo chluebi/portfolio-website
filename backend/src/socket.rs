@@ -14,7 +14,10 @@ pub fn handle_client(mut stream: std::net::TcpStream) {
 
         match protos::Query::decode(&buffer[..bytes_read]) {
             Ok(query) => {
-                let response: protos::Projects = protos::Projects::default();
+                let response: protos::Response = protos::Response { 
+                        uuid: query.uuid,
+                        projects: Some(protos::Projects::default())
+                    };
 
                 // Send the response back with the same ID
                 stream.write_all(&response.encode_to_vec()).unwrap();
