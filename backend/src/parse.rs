@@ -4,6 +4,8 @@ use std::path::Path;
 use regex::Regex;
 use serde::Deserialize;
 
+use crate::types::{Project};
+
 #[derive(Debug, Deserialize)]
 struct Metadata {
     url: String,
@@ -11,6 +13,8 @@ struct Metadata {
     languages: Vec<String>,
     keywords: Vec<String>,
 }
+
+
 
 
 fn extract_metadata(content: &str) -> Option<&str> {
@@ -24,7 +28,7 @@ fn extract_content(content: &str) -> Option<&str> {
 }
 
 
-pub fn read() {
+pub fn read_project_files() -> Vec<Project> {
     let directory_path = "../data";
 
     let dir = fs::read_dir(directory_path);
@@ -35,48 +39,62 @@ pub fn read() {
                 .filter_map(|entry| entry.ok())
                 .filter(|entry| entry.file_type().unwrap().is_file())
                 .map(|entry| entry.path())
+                .filter(|path| !path.file_stem().unwrap().to_string_lossy().to_string().starts_with("__"))
                 .collect::<Vec<_>>();
 
-            for path in paths {
-                println!("Reading file: {}", path.display());
-
-                let mut file = match fs::File::open(&path) {
-                    Ok(file) => file,
-                    Err(error) => {
-                        eprintln!("Error opening file: {}", error);
-                        continue;
+            let projects: Vec<Project> = paths.iter().enumerate().filter_map(
+                |(i, path)| {
+                    let mut file = match fs::File::open(&path) {
+                        Ok(file) => file,
+                        Err(error) => {
+                            eprintln!("Error opening file: {}", error);
+                            return None;
+                        }
+                    };
+    
+                    let mut contents = String::new();
+                    if let Err(error) = file.read_to_string(&mut contents) {
+                        eprintln!("Error reading file: {}", error);
+                        return None;
                     }
-                };
+    
+                    let metadata_str = match extract_metadata(&contents) {
+                        Some(m) => m,
+                        None => {
+                            eprintln!("No metadata in: {}", path.display());
+                            return None;
+                        }
+                    };
+                    let metadata: Metadata = serde_yaml::from_str(&metadata_str).unwrap();
+                    let content = match extract_content(&contents) {
+                        Some(c) => c,
+                        None => {
+                            eprintln!("No content in: {}", path.display());
+                            return None;
+                        }
+                    };
 
-                let mut contents = String::new();
-                if let Err(error) = file.read_to_string(&mut contents) {
-                    eprintln!("Error reading file: {}", error);
-                    continue;
+                    return Some (Project {
+                        id: i as u32,
+                        year: metadata.year,
+                        title: path.file_stem().unwrap().to_string_lossy().to_string(),
+                        description: content.to_string(),
+                        url: metadata.url,
+                        languages: metadata.languages,
+                        tags: metadata.keywords
+                    })
                 }
+            ).collect();
 
-                let metadata_str = match extract_metadata(&contents) {
-                    Some(m) => m,
-                    None => {
-                        eprintln!("No metadata in: {}", path.display());
-                        continue;
-                    }
-                };
-                let metadata: Metadata = serde_yaml::from_str(&metadata_str).unwrap();
-                let content = match extract_content(&contents) {
-                    Some(c) => c,
-                    None => {
-                        eprintln!("No content in: {}", path.display());
-                        continue;
-                    }
-                };
-                
-                println!("File metadata: \n{}", metadata_str);
-                println!("File content:\n{}", content);
-                println!("File url: {}", metadata.url)
+            for p in &projects {
+                println!("project {}", p.title);
             }
+
+            return projects;
         }
         Err(e) => {
             eprintln!("Error reading folder: {}", directory_path);
+            return Vec::new();
         }
     }
 

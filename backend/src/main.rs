@@ -1,10 +1,15 @@
 use std::env;
 use std::net::TcpListener;
+
+use index::build_word_index;
 mod socket;
 mod parse;
+mod index;
+mod types;
 
 fn main() {
-    parse::read();
+    let projects = parse::read_project_files();
+    build_word_index(projects);
 }
 
 fn run_socket() {
