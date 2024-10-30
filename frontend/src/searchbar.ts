@@ -62,16 +62,12 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
 
     clearInterval(typingTimer);
     clearInterval(inactivityTimer);
-    searchBox.value = '';
 
     resetInactivityTimer();
   });
 
   searchBox.addEventListener('blur', () => {
     mode = Mode.Unfocused;
-    searchBox.classList.remove('strong-text');
-
-    cycleSuggestion();
     resetInactivityTimer();
   });
 
@@ -83,7 +79,6 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
       mode = Mode.UserTyping;
 
       clearInterval(typingTimer);
-      searchBox.value = '';
       searchBox.classList.add('strong-text');
       resetInactivityTimer();
     }
