@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Project {
     pub id: u32,
     pub year: u32,
@@ -25,3 +25,8 @@ impl Project {
 
 pub type Index = BTreeMap<String, Vec<u32>>;
 pub type ProjectMapping = HashMap<u32, Project>;
+
+pub struct IRSystem {
+    pub index: Index,
+    pub mapping: ProjectMapping
+}

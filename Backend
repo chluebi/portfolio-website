@@ -17,6 +17,7 @@ FROM ubuntu:latest
 
 WORKDIR /app
 
+COPY ../data /data
 COPY --from=builder /app/target/release/backend .
 
 EXPOSE 5000
