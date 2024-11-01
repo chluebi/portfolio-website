@@ -1,5 +1,6 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
+use crate::preprocessing::preprocess;
 use crate::types::{Project, Index, ProjectMapping, IRSystem};
 
 
@@ -8,7 +9,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
     let mut mapping: ProjectMapping = HashMap::new();
     projects.iter().for_each(|project| {
         for text in project.all_text() {
-            for word in text.split_whitespace() {
+            for word in preprocess(text).split_whitespace() {
                 if tree.contains_key(word) {
                     tree.get_mut(word).unwrap().push(project.id);
                 } else {

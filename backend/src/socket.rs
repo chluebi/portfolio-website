@@ -1,7 +1,7 @@
 use std::io::{Read, Write};
 use prost::Message;
 
-use crate::{types, index};
+use crate::{types, index, preprocessing};
 
 mod protos {
     include!(concat!(env!("OUT_DIR"), "/portfolio.rs"));
@@ -17,7 +17,7 @@ pub fn handle_client(mut stream: std::net::TcpStream, system: &types::IRSystem) 
         match protos::Query::decode(&buffer[..bytes_read]) {
             Ok(query) => {
 
-                let ids = index::query_index(&system.index, query.query.split_whitespace().collect());
+                let ids = index::query_index(&system.index, preprocessing::preprocess(&query.query).split_whitespace().collect());
                 let projects: Vec<types::Project> = ids.iter().filter_map(|id| system.mapping.get(id).cloned()).collect();
                 let protos_projects: Vec<protos::Project> = projects.iter().map(
                     |project| {

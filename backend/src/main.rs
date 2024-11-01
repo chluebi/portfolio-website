@@ -8,6 +8,7 @@ mod socket;
 mod parse;
 mod index;
 mod types;
+mod preprocessing;
 
 fn main() {
     let projects = parse::read_project_files();
