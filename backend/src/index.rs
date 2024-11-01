@@ -37,7 +37,8 @@ pub fn query_index(index: &Index, query: String) -> Vec<u32> {
     let mut results = HashSet::new();
     let mut first_added = false;
 
-    for word in query.split_whitespace() {
+    for word in preprocess(&query).split_whitespace() {
+        println!("word {}", word);
         match index.get(word) {
             Some(res) => {
                 if !first_added {
