@@ -1,5 +1,4 @@
-use std::collections::BTreeMap;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Debug, Clone)]
 pub struct Project {
@@ -23,6 +22,7 @@ impl Project {
     }
 }
 
+pub type PreIndex = BTreeMap<String, HashSet<u32>>;
 pub type Index = BTreeMap<String, Vec<u32>>;
 pub type ProjectMapping = HashMap<u32, Project>;
 

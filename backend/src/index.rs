@@ -1,26 +1,35 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use crate::preprocessing::preprocess;
-use crate::types::{Project, Index, ProjectMapping, IRSystem};
+use crate::types::{Project, PreIndex, Index, ProjectMapping, IRSystem};
 
 
 pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
-    let mut tree: Index = BTreeMap::new();
+    let mut tree: PreIndex = BTreeMap::new();
+
+
     let mut mapping: ProjectMapping = HashMap::new();
     projects.iter().for_each(|project| {
         for text in project.all_text() {
             for word in preprocess(text).split_whitespace() {
                 if tree.contains_key(word) {
-                    tree.get_mut(word).unwrap().push(project.id);
+                    tree.get_mut(word).unwrap().insert(project.id);
                 } else {
-                    tree.insert(word.to_string(), vec![project.id]);
+                    tree.insert(word.to_string(), [project.id].into_iter().collect());
                 }
             }
         }
 
         mapping.insert(project.id, project.clone());
     });
-    return IRSystem {index: tree, mapping: mapping};
+
+    let final_tree: Index = tree.into_iter().map(|(key, value)| {
+        let mut vec: Vec<u32> = value.into_iter().collect();
+        vec.sort();
+        (key, vec)
+    }).collect();
+
+    return IRSystem {index: final_tree, mapping: mapping};
 }
 
 pub fn query_index(index: &Index, query: String) -> Vec<u32> {
