@@ -8,6 +8,7 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
     Start,
     Suggestions,
     Focused,
+    Unfocused,
     Typing
   }
 
@@ -64,13 +65,16 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
   }
 
   searchBox.addEventListener('focus', () => {
+    if (mode == Mode.Focused || mode == Mode.Typing || mode == Mode.Unfocused) {
+      return;
+    }
     mode = Mode.Focused;
     searchBox.value = "";
     searchBox.classList.add('strong-text');
   });
 
   searchBox.addEventListener('blur', () => {
-    mode = Mode.Start;
+    mode = Mode.Unfocused;
     resetInactivityTimer();
   });
 
