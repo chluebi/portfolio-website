@@ -78,14 +78,16 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
     resetInactivityTimer();
   });
 
-  searchBox.addEventListener('keydown', () => {
+  searchBox.addEventListener('keydown', (event) => {
     if (mode == Mode.Suggestions) {
       searchBox.value = "";
     }
     mode = Mode.Typing;
     searchBox.classList.add('strong-text');
 
-    setTimeout(() => callback(searchBox.value), 0);
+    if (event.key == "Enter") {
+      setTimeout(() => callback(searchBox.value), 0);
+    }
   })
 
   function hardSetSearch(s: String) {

@@ -9,9 +9,6 @@ const resetSearch = setupSearch(inputElement!, search);
 
 async function search(s: String) {
   const projectsDiv = document.querySelector<HTMLDivElement>("#results");
-  if (projectsDiv) {
-    projectsDiv.innerHTML = "";
-  }
 
   if (s.length > 0) {
     const response = await fetch('/api?q=' + s);
@@ -19,6 +16,10 @@ async function search(s: String) {
     const projects: Array<Project> = data.results;
 
     console.log(projects);
+
+    if (projectsDiv) {
+      projectsDiv.innerHTML = "";
+    }
 
     projects.map((p, i) => {
       const projectsElement = document.createElement('a')
