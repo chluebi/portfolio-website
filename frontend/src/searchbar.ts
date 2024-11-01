@@ -1,15 +1,17 @@
+import { isModuleExportName } from '../node_modules/typescript/lib/typescript.js';
 import { SearchCallback } from './types.js'
 
 export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallback) {
   const suggestions = ['Python', 'Rust', 'Java', 'C++'];
 
   enum Mode {
-    Unfocused,
-    FocusedIdle,
-    UserTyping
+    Start,
+    Suggestions,
+    Focused,
+    Typing
   }
 
-  let mode: Mode = Mode.Unfocused;
+  let mode: Mode = Mode.Start;
 
   let suggestionIndex = 0;
   let typingTimer: number;
@@ -22,6 +24,13 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
   
     let i = 0;
     typingTimer = window.setInterval(() => {
+      if (mode != Mode.Suggestions) {
+        clearInterval(typingTimer);
+        searchBox.classList.remove('typing-animation');
+        searchBox.value = '';
+        return;
+      }
+
       if (i < suggestion.length) {
         searchBox.value += suggestion.charAt(i);
         i++;
@@ -33,6 +42,8 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
   }
 
   function cycleSuggestion() {
+    searchBox.value = "";
+    searchBox.classList.remove('strong-text');
     const suggestion = suggestions[suggestionIndex] + " projects...";
     typeSuggestion(suggestion);
   
@@ -42,57 +53,40 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
   function resetInactivityTimer() {
     clearTimeout(inactivityTimer);
     inactivityTimer = window.setTimeout(() => {
-      if (mode == Mode.UserTyping && searchBox.value != "") {
+      if (mode == Mode.Start || mode == Mode.Focused || mode == Mode.Suggestions) {
+        mode = Mode.Suggestions;
+        cycleSuggestion();
         resetInactivityTimer();
         return;
       }
-
-      if (mode == Mode.UserTyping) {
-        mode = Mode.FocusedIdle;
-        searchBox.classList.remove('strong-text');
-      }
-
-      cycleSuggestion();
       resetInactivityTimer();
     }, inactivityDelay);
   }
 
   searchBox.addEventListener('focus', () => {
-    mode = Mode.FocusedIdle;
-
-    clearInterval(typingTimer);
-    clearInterval(inactivityTimer);
-
-    resetInactivityTimer();
+    mode = Mode.Focused;
+    searchBox.value = "";
+    searchBox.classList.add('strong-text');
   });
 
   searchBox.addEventListener('blur', () => {
-    mode = Mode.Unfocused;
+    mode = Mode.Start;
     resetInactivityTimer();
   });
 
   searchBox.addEventListener('keydown', () => {
-    if (mode == Mode.Unfocused) {
-      return;
+    if (mode == Mode.Suggestions) {
+      searchBox.value = "";
     }
-    else if (mode == Mode.FocusedIdle) {
-      mode = Mode.UserTyping;
-
-      clearInterval(typingTimer);
-      searchBox.classList.add('strong-text');
-      resetInactivityTimer();
-    }
-    else if (mode == Mode.UserTyping) {
-      resetInactivityTimer();
-    }
+    mode = Mode.Typing;
+    searchBox.classList.add('strong-text');
 
     setTimeout(() => callback(searchBox.value), 0);
   })
 
   function hardSetSearch(s: String) {
     searchBox.focus();
-    mode = Mode.UserTyping;
-    resetInactivityTimer();
+    mode = Mode.Typing;
     searchBox.classList.add('strong-text');
 
     searchBox.value = s.toString();
@@ -100,7 +94,6 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
 
 
   resetInactivityTimer();
-  cycleSuggestion();
 
   return hardSetSearch;
 }
