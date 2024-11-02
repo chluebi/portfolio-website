@@ -22,6 +22,7 @@ message Project {
     string title = 3;
     string description = 4;
     string url = 5;
-    repeated string languages = 6;
-    repeated string tags = 7;
+    string git_url = 6;
+    repeated string languages = 7;
+    repeated string tags = 8;
 }

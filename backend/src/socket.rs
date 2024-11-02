@@ -27,6 +27,7 @@ pub fn handle_client(mut stream: std::net::TcpStream, system: &types::IRSystem) 
                             title: project.title.clone(),
                             description: project.description.clone(),
                             url: project.url.clone(),
+                            git_url: project.git_url.clone(),
                             languages: project.languages.clone(),
                             tags: project.tags.clone()
                         }

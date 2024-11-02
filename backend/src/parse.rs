@@ -9,6 +9,7 @@ use crate::types::{Project};
 #[derive(Debug, Deserialize)]
 struct Metadata {
     url: String,
+    git_url: String,
     year: u32,
     languages: Vec<String>,
     keywords: Vec<String>,
@@ -80,6 +81,7 @@ pub fn read_project_files() -> Vec<Project> {
                         title: path.file_stem().unwrap().to_string_lossy().to_string(),
                         description: content.to_string(),
                         url: metadata.url,
+                        git_url: metadata.git_url,
                         languages: metadata.languages,
                         tags: metadata.keywords
                     })

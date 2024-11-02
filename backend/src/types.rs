@@ -7,6 +7,7 @@ pub struct Project {
     pub title: String,
     pub description: String,
     pub url: String,
+    pub git_url: String,
     pub languages: Vec<String>,
     pub tags: Vec<String>
 }
