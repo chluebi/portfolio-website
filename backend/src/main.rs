@@ -9,6 +9,7 @@ mod parse;
 mod index;
 mod types;
 mod preprocessing;
+mod process_files;
 
 fn main() {
     let projects = parse::read_project_files();

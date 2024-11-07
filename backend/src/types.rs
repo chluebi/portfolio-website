@@ -1,6 +1,13 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 #[derive(Debug, Clone)]
+pub struct ProjectFile {
+    pub name: String,
+    pub extension: String,
+    pub content: String
+}
+
+#[derive(Debug, Clone)]
 pub struct Project {
     pub id: u32,
     pub year: u32,
@@ -9,7 +16,8 @@ pub struct Project {
     pub url: String,
     pub git_url: String,
     pub languages: Vec<String>,
-    pub tags: Vec<String>
+    pub tags: Vec<String>,
+    pub files: Vec<ProjectFile>
 }
 
 impl Project {

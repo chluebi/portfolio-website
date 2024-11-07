@@ -1,6 +1,6 @@
 ---
 url: https://google.com
-git_url: 
+git_url: https://github.com/chluebi/portfolio-website
 year: 2024
 languages:
   - Python

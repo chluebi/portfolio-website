@@ -4,6 +4,7 @@ use std::path::Path;
 use regex::Regex;
 use serde::Deserialize;
 
+use crate::process_files;
 use crate::types::{Project};
 
 #[derive(Debug, Deserialize)]
@@ -75,6 +76,9 @@ pub fn read_project_files() -> Vec<Project> {
                         }
                     };
 
+                    let files = process_files::get_project_files(&metadata.git_url).unwrap();
+                    println!("Files {}", files.len());
+
                     return Some (Project {
                         id: i as u32,
                         year: metadata.year,
@@ -83,7 +87,8 @@ pub fn read_project_files() -> Vec<Project> {
                         url: metadata.url,
                         git_url: metadata.git_url,
                         languages: metadata.languages,
-                        tags: metadata.keywords
+                        tags: metadata.keywords,
+                        files: files
                     })
                 }
             ).collect();
