@@ -38,7 +38,7 @@ fn visit_files(path: &PathBuf) -> Vec<ProjectFile> {
         } else {
             match (path.file_name(), path.extension(), fs::read_to_string(path.clone())) {
                 (Some(file_name), Some(extension), Ok(content)) => {
-                    match (extension_allowed(&extension.to_string_lossy().to_string())) {
+                    match extension_allowed(&extension.to_string_lossy().to_string()) {
                         Some(extension) => {
                                 results.push(ProjectFile {
                                 name: file_name.to_string_lossy().to_string(),

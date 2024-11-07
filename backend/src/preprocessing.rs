@@ -1,10 +1,11 @@
 
 
-pub fn preprocess(original: &String) -> String {
+pub fn preprocess(original: &String) -> Vec<String> {
     let lowercased = original.to_lowercase();
-    let no_punctuation: String = lowercased.chars()
-        .filter(|c| c.is_alphanumeric() || c.is_whitespace())
-        .collect();
+    let separators = &['.', ':', ','];  // Add more separators as needed
 
-    return no_punctuation;
+    lowercased.split(|c| separators.contains(&c) || !c.is_alphanumeric())
+              .map(|word| word.to_string())
+              .filter(|word| !word.is_empty())
+              .collect()
 }
