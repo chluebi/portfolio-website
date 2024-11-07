@@ -17,6 +17,8 @@ FROM ubuntu:latest
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y git
+
 COPY ../data /data
 COPY --from=builder /app/target/release/backend .
 

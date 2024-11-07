@@ -1,6 +1,5 @@
 use std::process::Command;
 use tempfile::tempdir;
-use std::io;
 use std::fs;
 use std::path::PathBuf;
 

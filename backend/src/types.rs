@@ -25,8 +25,10 @@ impl Project {
         let mut text = vec![&self.title, &self.description, &self.url];
         let borrowed_languages: Vec<&String> = self.languages.iter().collect();
         let borrowed_tags: Vec<&String> = self.tags.iter().collect();
+        let files_text: Vec<&String> = self.files.iter().map(|project| &project.content).collect();
         text.extend(borrowed_languages);
         text.extend(borrowed_tags);
+        text.extend(files_text);
         text
     }
 }
