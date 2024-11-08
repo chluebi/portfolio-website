@@ -17,8 +17,8 @@ pub fn handle_client(mut stream: std::net::TcpStream, system: &types::IRSystem) 
         match protos::Query::decode(&buffer[..bytes_read]) {
             Ok(query) => {
 
-                let ids = index::query_index(&system.index, query.query);
-                let projects: Vec<types::Project> = ids.iter().filter_map(|id| system.mapping.get(id).cloned()).collect();
+                let results = index::query_index(&system, query.query);
+                let projects: Vec<types::Project> = results.iter().filter_map(|result| system.mapping.get(&result.id).cloned()).collect();
                 let protos_projects: Vec<protos::Project> = projects.iter().map(
                     |project| {
                         return protos::Project {

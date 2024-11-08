@@ -3,7 +3,7 @@ use std::net::TcpListener;
 use std::sync::Arc;
 
 use types::{IRSystem};
-use index::build_word_index;
+use index::{build_word_index, query_index};
 mod socket;
 mod parse;
 mod index;
@@ -14,6 +14,8 @@ mod process_files;
 fn main() {
     let projects = parse::read_project_files();
     let system = Arc::new(build_word_index(projects));
+    // test query
+    query_index(&system, "temp".to_string());
     run_socket(system);
 }
 
