@@ -57,11 +57,12 @@ pub type ProjectMapping = HashMap<u32, Project>;
 
 pub struct IRSystem {
     pub index: Index,
+    pub project_lengths: HashMap<u32, f32>,
     pub mapping: ProjectMapping
 }
 
 #[derive(Debug, Clone)]
 pub struct QueryResult {
     pub id: u32,
-    pub score: u32
+    pub score: f32
 }
