@@ -15,7 +15,7 @@ fn main() {
     let projects = parse::read_project_files();
     let system = Arc::new(build_word_index(projects));
     // test query
-    query_index(&system, "db".to_string());
+    query_index(&system, "db sqlalchemy python".to_string());
     run_socket(system);
 }
 
