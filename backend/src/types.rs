@@ -52,13 +52,29 @@ impl Ord for ProjectEntry {
 }
 
 pub type PreIndex<'a> = BTreeMap<String, HashMap<u32, ProjectEntry>>;
+
 pub type Index = BTreeMap<String, Vec<ProjectEntry>>;
+pub type LengthStore = HashMap<u32, f32>;
+pub type IndexWithLengths = (Index, LengthStore);
+
 pub type ProjectMapping = HashMap<u32, Project>;
 
 pub struct IRSystem {
-    pub index: Index,
-    pub project_lengths: HashMap<u32, f32>,
+    pub title_index: IndexWithLengths,
+    pub description_index: IndexWithLengths,
+    pub languages_index: IndexWithLengths,
+    pub tags_index: IndexWithLengths,
+    pub files_index: IndexWithLengths,
+
     pub mapping: ProjectMapping
+}
+
+pub struct FieldWeights {
+    pub title: f32,
+    pub description: f32,
+    pub languages: f32,
+    pub tags: f32,
+    pub files: f32
 }
 
 #[derive(Debug, Clone)]

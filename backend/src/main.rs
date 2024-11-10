@@ -2,7 +2,7 @@ use std::env;
 use std::net::TcpListener;
 use std::sync::Arc;
 
-use types::{IRSystem};
+use types::{FieldWeights, IRSystem};
 use index::{build_word_index, query_index};
 mod socket;
 mod parse;
@@ -15,7 +15,7 @@ fn main() {
     let projects = parse::read_project_files();
     let system = Arc::new(build_word_index(projects));
     // test query
-    query_index(&system, "db sqlalchemy python".to_string());
+    query_index(&system, "db sqlalchemy python".to_string(), FieldWeights {title: 0.5, description: 0.2, languages: 0.4, tags: 0.3, files: 0.1});
     run_socket(system);
 }
 
