@@ -232,7 +232,7 @@ pub fn query_index(system: &IRSystem, query: String, weights: FieldWeights) -> V
     println!("final scores {:?}", scores);
 
     let mut results: Vec<(u32, f32)> = scores.into_iter().collect();
-    results.sort_by(|(_, score_a), (_, score_b) | score_a.partial_cmp(&score_b).unwrap());
+    results.sort_by(|(_, score_a), (_, score_b) | score_b.partial_cmp(&score_a).unwrap()); // swapped for reverse
     let results = results.iter().map(|(id, score)| QueryResult {id: id.clone(), score: score.clone() as f32}).collect();
 
     println!("query result {:?}", results);
