@@ -206,7 +206,7 @@ fn score_for_index(word: &String, index: &Index, trigrams_map: &TrigramMap, scor
                         Some(res) => {
                             for entry in res.iter() {
                                 scores.insert(entry.id, scores.get(&entry.id).unwrap() 
-                                + score_term_frequency(entry.count) * score_document_frequency(res.len(), n) * 1.0/(closest_match.1 as f32 + 1.0));
+                                + score_term_frequency(entry.count) * score_document_frequency(res.len(), n) * 0.5/(closest_match.1 as f32 + 1.0));
                             }
                         }
                         None => {
