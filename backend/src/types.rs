@@ -57,6 +57,8 @@ pub type Index = BTreeMap<String, Vec<ProjectEntry>>;
 pub type LengthStore = HashMap<u32, f32>;
 pub type IndexWithLengths = (Index, LengthStore);
 
+pub type TrigramMap = HashMap<String, Vec<String>>;
+
 pub type ProjectMapping = HashMap<u32, Project>;
 
 pub struct IRSystem {
@@ -65,6 +67,8 @@ pub struct IRSystem {
     pub languages_index: IndexWithLengths,
     pub tags_index: IndexWithLengths,
     pub files_index: IndexWithLengths,
+
+    pub trigrams: TrigramMap,
 
     pub mapping: ProjectMapping
 }
