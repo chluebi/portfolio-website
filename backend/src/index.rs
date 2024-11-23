@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, HashMap};
 
 use crate::preprocessing::preprocess;
+use crate::correction;
 use crate::types::{FieldWeights, IRSystem, Index, LengthStore, PreIndex, Project, ProjectEntry, ProjectMapping, QueryResult, TrigramMap};
 
 
@@ -189,7 +190,7 @@ fn score_document_frequency(df: usize, N: usize) -> f32 {
 }
 
 
-fn score_for_index(word: &String, index: &Index, scores: &mut HashMap<u32, f32>, n: usize) {
+fn score_for_index(word: &String, index: &Index, trigrams_map: &TrigramMap, scores: &mut HashMap<u32, f32>, n: usize) {
     match index.get(word) {
         Some(res) => {
             for entry in res.iter() {
@@ -198,7 +199,25 @@ fn score_for_index(word: &String, index: &Index, scores: &mut HashMap<u32, f32>,
             }
         }
         None => {
+            // try correction to find a match anyway
+            match correction::find_closest_match(word, trigrams_map, 20) {
+                Some(closest_match) => {
+                    match index.get(&closest_match.0) {
+                        Some(res) => {
+                            for entry in res.iter() {
+                                scores.insert(entry.id, scores.get(&entry.id).unwrap() 
+                                + score_term_frequency(entry.count) * score_document_frequency(res.len(), n) * 1.0/(closest_match.1 as f32 + 1.0));
+                            }
+                        }
+                        None => {
 
+                        }
+                    }
+                }   
+                None => {
+
+                }
+            }
         }
     }
 }
@@ -229,11 +248,11 @@ pub fn query_index(system: &IRSystem, query: String, weights: FieldWeights) -> V
     
     
     for word in preprocess(&query) {
-        score_for_index(&word, &system.title_index.0, &mut title_scores, system.mapping.len());
-        score_for_index(&word, &system.description_index.0, &mut description_scores, system.mapping.len());
-        score_for_index(&word, &system.languages_index.0, &mut languages_scores, system.mapping.len());
-        score_for_index(&word, &system.tags_index.0, &mut tags_scores, system.mapping.len());
-        score_for_index(&word, &system.files_index.0, &mut files_scores, system.mapping.len());
+        score_for_index(&word, &system.title_index.0, &system.trigrams, &mut title_scores, system.mapping.len());
+        score_for_index(&word, &system.description_index.0, &system.trigrams, &mut description_scores, system.mapping.len());
+        score_for_index(&word, &system.languages_index.0, &system.trigrams, &mut languages_scores, system.mapping.len());
+        score_for_index(&word, &system.tags_index.0, &system.trigrams, &mut tags_scores, system.mapping.len());
+        score_for_index(&word, &system.files_index.0, &system.trigrams, &mut files_scores, system.mapping.len());
     }
 
     println!("title scores {:?}", title_scores);

@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use types::{FieldWeights, IRSystem};
 use index::{build_word_index, query_index};
-use correction::{find_closest_jaccard_matches};
+use correction::{find_closest_match};
 mod socket;
 mod parse;
 mod index;
@@ -17,9 +17,9 @@ fn main() {
     let projects = parse::read_project_files();
     let system = Arc::new(build_word_index(projects));
     // test query
-    query_index(&system, "db sqlalchemy python".to_string(), FieldWeights {title: 0.5, description: 0.2, languages: 0.4, tags: 0.3, files: 0.1});
-    let closest_matches = find_closest_jaccard_matches(&"bhyton".to_string(), &system.trigrams, 20);
-    println!("closest matches {:?}", closest_matches);
+    query_index(&system, "bython abc wow".to_string(), FieldWeights {title: 0.5, description: 0.2, languages: 0.4, tags: 0.3, files: 0.1});
+    let closest_match = find_closest_match(&"pyaathonic".to_string(), &system.trigrams, 20);
+    println!("closest match {:?}", closest_match.unwrap());
 
     run_socket(system);
 }

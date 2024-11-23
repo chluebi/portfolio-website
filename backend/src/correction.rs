@@ -59,3 +59,54 @@ pub fn find_closest_jaccard_matches(word: &String, trigrams_map: &TrigramMap, co
 
     heap.into_sorted_vec().iter().map(|js| (js.word.clone(), js.score)).collect()
 }
+
+
+fn min_edit_distance(s1: &String, s2: &String) -> u32 {
+    let l1 = s1.len();
+    let l2 = s2.len();
+
+    let mut dp = vec![vec![0 as u32; l2 + 1]; l1 + 1];
+
+    for i in 0..l1+1 {
+        dp[i][0] = i as u32;
+    }
+
+    for j in 0..l2+1 {
+        dp[0][j] = j as u32;
+    }
+
+    for i in 1..l1+1 {
+        for j in 1..l2+1 {
+            let cost = if s1.as_bytes()[i - 1] == s2.as_bytes()[j - 1] {
+                0
+            } else {
+                1
+            };
+
+            dp[i][j] = *[
+                dp[i - 1][j] + 1,
+                dp[i][j - 1] + 1,
+                dp[i - 1][j - 1] + cost,
+            ]
+            .iter()
+            .min()
+            .unwrap();
+        }
+    }
+
+    return dp[l1][l2];
+}
+
+
+
+pub fn find_closest_match(word: &String, trigrams_map: &TrigramMap, sample_count: usize) -> Option<(String, u32)> {
+    let matches: Vec<String> = find_closest_jaccard_matches(word, trigrams_map, sample_count).iter().map(|x| x.0.clone()).collect();
+
+    let scores: Vec<u32> = matches.iter().map(|x| min_edit_distance(&word, &x)).collect();
+
+    if let Some(min_index) = scores.iter().enumerate().min_by_key(|&(_, score)| score) {
+        Some((matches[min_index.0].clone(), *min_index.1))
+    } else {
+        None
+    }
+}
