@@ -2,14 +2,24 @@ syntax = "proto3";
 
 package portfolio;
 
+
+enum QueryType {
+    PROJECTS = 0;
+    COMPLETION = 1;
+}
+
 message Query {
     string uuid = 1;
-    string query = 2;
+    QueryType type = 2;
+    string query = 3;
 }
 
 message Response {
     string uuid = 1;
-    Projects projects = 2;
+    oneof payload {
+        Projects projects = 2;
+        string completion = 3;
+    }
 }
 
 message Projects {

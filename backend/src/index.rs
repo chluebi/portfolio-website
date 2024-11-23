@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashMap};
 
 use crate::preprocessing::preprocess;
 use crate::correction;
-use crate::types::{FieldWeights, IRSystem, Index, LengthStore, PreIndex, Project, ProjectEntry, ProjectMapping, QueryResult, TrigramMap};
+use crate::types::{FieldWeights, IRSystem, Index, LengthStore, PreIndex, Project, ProjectEntry, ProjectMapping, QueryResult, TrigramMap, WordCountMap};
 
 
 fn add_word_to_index(word: &String, index: &mut PreIndex, term_count_map: &mut HashMap<String, u32>, project: &Project) {
@@ -65,6 +65,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
     let mut files_lengths: LengthStore = HashMap::new();
 
     let mut trigrams: TrigramMap = HashMap::new();
+    let mut wordcount: WordCountMap = HashMap::new();
 
     let mut mapping: ProjectMapping = HashMap::new();
 
@@ -76,6 +77,8 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
             if !trigrams.contains_key(&word) {
                 trigrams.insert(word.clone(), get_word_trigrams(&word));
             }
+
+            *wordcount.entry(word).or_insert(1) += 1;
         }
         title_lengths.insert(project.id, turn_term_count_into_length(&title_term_count_map));
 
@@ -87,6 +90,8 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
             if !trigrams.contains_key(&word) {
                 trigrams.insert(word.clone(), get_word_trigrams(&word));
             }
+
+            *wordcount.entry(word).or_insert(1) += 1;
         }
         description_lengths.insert(project.id, turn_term_count_into_length(&description_term_count_map));
 
@@ -99,6 +104,8 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
                 if !trigrams.contains_key(&word) {
                     trigrams.insert(word.clone(), get_word_trigrams(&word));
                 }
+
+                *wordcount.entry(word).or_insert(1) += 1;
             }
         }
         languages_lengths.insert(project.id, turn_term_count_into_length(&languages_term_count_map));
@@ -112,6 +119,8 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
                 if !trigrams.contains_key(&word) {
                     trigrams.insert(word.clone(), get_word_trigrams(&word));
                 }
+
+                *wordcount.entry(word).or_insert(1) += 1;
             }
         }
         tags_lengths.insert(project.id, turn_term_count_into_length(&tags_term_count_map));
@@ -125,6 +134,8 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
                 if !trigrams.contains_key(&word) {
                     trigrams.insert(word.clone(), get_word_trigrams(&word));
                 }
+
+                *wordcount.entry(word).or_insert(1) += 1;
             }
         }
         files_lengths.insert(project.id, turn_term_count_into_length(&files_term_count_map));
@@ -175,6 +186,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
         tags_index: (tags_index, tags_lengths),
         files_index: (files_index, files_lengths),
         trigrams: trigrams,
+        word_count: wordcount,
         mapping: mapping
     };
 }
@@ -190,7 +202,7 @@ fn score_document_frequency(df: usize, N: usize) -> f32 {
 }
 
 
-fn score_for_index(word: &String, index: &Index, trigrams_map: &TrigramMap, scores: &mut HashMap<u32, f32>, n: usize) {
+fn score_for_index(word: &String, index: &Index, system: &IRSystem, scores: &mut HashMap<u32, f32>, n: usize) {
     match index.get(word) {
         Some(res) => {
             for entry in res.iter() {
@@ -200,7 +212,7 @@ fn score_for_index(word: &String, index: &Index, trigrams_map: &TrigramMap, scor
         }
         None => {
             // try correction to find a match anyway
-            match correction::find_closest_match(word, trigrams_map, 20) {
+            match correction::find_closest_match(word, system, 20, &"".to_string()) {
                 Some(closest_match) => {
                     match index.get(&closest_match.0) {
                         Some(res) => {
@@ -248,11 +260,11 @@ pub fn query_index(system: &IRSystem, query: String, weights: FieldWeights) -> V
     
     
     for word in preprocess(&query) {
-        score_for_index(&word, &system.title_index.0, &system.trigrams, &mut title_scores, system.mapping.len());
-        score_for_index(&word, &system.description_index.0, &system.trigrams, &mut description_scores, system.mapping.len());
-        score_for_index(&word, &system.languages_index.0, &system.trigrams, &mut languages_scores, system.mapping.len());
-        score_for_index(&word, &system.tags_index.0, &system.trigrams, &mut tags_scores, system.mapping.len());
-        score_for_index(&word, &system.files_index.0, &system.trigrams, &mut files_scores, system.mapping.len());
+        score_for_index(&word, &system.title_index.0, &system, &mut title_scores, system.mapping.len());
+        score_for_index(&word, &system.description_index.0, &system, &mut description_scores, system.mapping.len());
+        score_for_index(&word, &system.languages_index.0, &system, &mut languages_scores, system.mapping.len());
+        score_for_index(&word, &system.tags_index.0, &system, &mut tags_scores, system.mapping.len());
+        score_for_index(&word, &system.files_index.0, &system, &mut files_scores, system.mapping.len());
     }
 
     println!("title scores {:?}", title_scores);

@@ -3,7 +3,7 @@ import { join } from "path";
 import { createConnection } from "net";
 
 import { portfolio } from "./src/generated/portfolio.ts";
-import { Project } from "./src/types.ts";
+import { Project, ProjectResponse, CompletionResponse } from "./src/types.ts";
 
 const BACKEND_HOST = Bun.env.BACKEND_HOST || "127.0.0.1";
 const BACKEND_PORT = Number(Bun.env.BACKEND_PORT) || 5000;
@@ -32,22 +32,31 @@ function connectToBackend(retries: number) {
   });
 
   client.on("data", (data) => {
-    const response = portfolio.Response.deserializeBinary(data);
-    const projects = response.projects.projects;
+    const response: portfolio.Response = portfolio.Response.deserializeBinary(data);
     
     if (response.uuid && pendingResponses.has(response.uuid)) {
       const resolve = pendingResponses.get(response.uuid);
-      const projectsJson: Array<Project> = projects.map((p) => {
-        return {
-          id: p.id,
-          title: p.title,
-          description: p.description,
-          url: p.url,
-          languages: p.languages,
-          tags: p.tags
-        }
-      });
-      resolve(projectsJson);
+      if (response.has_projects) {
+        const projects = response.projects.projects;
+          const projectsJson: ProjectResponse = {
+              type: "projects",
+              data: projects.map((p) => {
+                return {
+                  id: p.id,
+                  title: p.title,
+                  description: p.description,
+                  url: p.url,
+                  languages: p.languages,
+                  tags: p.tags
+                }
+               })
+          }
+          resolve(projectsJson);
+      }
+      else if (response.has_completion) {
+        const message = response.completion;
+        resolve({ type: "completion", data: message });
+      }
     }
   });
 
@@ -75,7 +84,7 @@ serve({
   async fetch(req) {
     const url = new URL(req.url);
 
-    if (url.pathname.startsWith("/api")) {
+    if (url.pathname.startsWith("/api/projects")) {
       const queryString = url.searchParams.get("q");
       if (queryString && queryString.length !== 0) {
         const requestId = generateUniqueString(32);
@@ -86,6 +95,29 @@ serve({
 
         const query: portfolio.Query = new portfolio.Query();
         query.uuid = requestId;
+        query.type = portfolio.QueryType.PROJECTS;
+        query.query = queryString;
+
+        client.write(query.serializeBinary());
+        const results = await responsePromise;
+
+        return new Response(JSON.stringify({ results: results }), {
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    } else if (url.pathname.startsWith("/api/completion")) {
+
+      const queryString = url.searchParams.get("q");
+      if (queryString && queryString.length !== 0) {
+        const requestId = generateUniqueString(32);
+
+        const responsePromise = new Promise((resolve) => {
+          pendingResponses.set(requestId, resolve);
+        });
+
+        const query: portfolio.Query = new portfolio.Query();
+        query.uuid = requestId;
+        query.type = portfolio.QueryType.COMPLETION;
         query.query = queryString;      
 
         client.write(query.serializeBinary());
@@ -95,6 +127,7 @@ serve({
           headers: { "Content-Type": "application/json" },
         });
       }
+
     }
 
     let filePath = join(PUBLIC_DIR, url.pathname);

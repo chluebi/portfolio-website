@@ -1,7 +1,23 @@
 import { isModuleExportName } from '../node_modules/typescript/lib/typescript.js';
 import { SearchCallback } from './types.js'
 
-export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallback) {
+
+function splitLastWord(str: string) {
+  const lastSpaceIndex = str.lastIndexOf(' ');
+  if (lastSpaceIndex === -1) {
+    return { lastWord: str, everythingElse: '' }; 
+  }
+
+  const everythingElse = str.slice(0, lastSpaceIndex);
+  const lastWord = str.slice(lastSpaceIndex + 1);
+  return { lastWord, everythingElse };
+}
+
+
+export function setupSearch(searchBox: HTMLInputElement, searchCallback: SearchCallback, completionCallback: SearchCallback) {
+
+  const completionDiv = document.querySelector<HTMLDivElement>("#search-completion");
+
   const suggestions = ['Python', 'Rust', 'Java', 'C++'];
 
   enum Mode {
@@ -79,14 +95,38 @@ export function setupSearch(searchBox: HTMLInputElement, callback: SearchCallbac
   });
 
   searchBox.addEventListener('keydown', (event) => {
+    if (event.key == "Tab" && mode == Mode.Typing) {
+      event.preventDefault();
+      if (completionDiv) {
+        searchBox.value = completionDiv.innerHTML;
+      }
+      searchBox.focus();
+    }
+  })
+
+  searchBox.addEventListener('keyup', (event) => {
     if (mode == Mode.Suggestions) {
       searchBox.value = "";
     }
     mode = Mode.Typing;
     searchBox.classList.add('strong-text');
 
+    if (completionDiv) {
+      const splitCompletion = splitLastWord(completionDiv.innerHTML);
+      const splitText = splitLastWord(searchBox.value);
+
+      if (splitCompletion.everythingElse != splitText.everythingElse || !splitCompletion.lastWord.startsWith(splitText.lastWord)) {
+        completionDiv.innerHTML = searchBox.value;
+      }
+    }
+
+    setTimeout(() => completionCallback(searchBox.value), 0);
+
     if (event.key == "Enter") {
-      setTimeout(() => callback(searchBox.value), 0);
+      if (completionDiv) {
+        completionDiv.innerHTML = searchBox.value;
+      }
+      setTimeout(() => searchCallback(searchBox.value), 0);
     }
   })
 

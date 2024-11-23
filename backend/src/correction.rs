@@ -1,7 +1,7 @@
 use std::collections::{BinaryHeap, HashSet};
 use std::cmp::Ordering;
 
-use crate::types::{TrigramMap};
+use crate::types::{IRSystem, TrigramMap};
 
 
 #[derive(Clone, Debug, PartialEq)]
@@ -34,17 +34,24 @@ fn get_word_trigrams(word: &str) -> Vec<String> {
 }
 
 
-pub fn find_closest_jaccard_matches(word: &String, trigrams_map: &TrigramMap, count: usize) -> Vec<(String, f32)> {
+pub fn find_closest_jaccard_matches(word: &String, system: &IRSystem, count: usize, prefix: &String) -> Vec<(String, f32)> {
 
     let word_trigrams: HashSet<String> = get_word_trigrams(word).iter().cloned().collect();
     let word_size = word_trigrams.len();
 
     let mut heap = BinaryHeap::with_capacity(count);
 
-    for (other_word, other_trigrams) in trigrams_map.iter() {
+    for (other_word, other_trigrams) in system.trigrams.iter() {
+        if !prefix.is_empty() && !other_word.starts_with(prefix) {
+            continue;
+        }
+
         let other_size = other_trigrams.len();
         let intersection_size = other_trigrams.iter().filter(|&t| word_trigrams.contains(t)).count();
-        let score: f32 = (intersection_size as f32) / ((word_size + other_size - intersection_size) as f32);
+        let score: f32 = 
+        (intersection_size as f32) / ((word_size + other_size - intersection_size) as f32)
+        * (*system.word_count.get(other_word).unwrap() as f32).ln() // scaling for more common words
+        ;
         
 
         if heap.len() < count {
@@ -99,8 +106,8 @@ fn min_edit_distance(s1: &String, s2: &String) -> u32 {
 
 
 
-pub fn find_closest_match(word: &String, trigrams_map: &TrigramMap, sample_count: usize) -> Option<(String, u32)> {
-    let matches: Vec<String> = find_closest_jaccard_matches(word, trigrams_map, sample_count).iter().map(|x| x.0.clone()).collect();
+pub fn find_closest_match(word: &String, system: &IRSystem, sample_count: usize, prefix: &String) -> Option<(String, u32)> {
+    let matches: Vec<String> = find_closest_jaccard_matches(word, system, sample_count, prefix).iter().map(|x| x.0.clone()).collect();
 
     let scores: Vec<u32> = matches.iter().map(|x| min_edit_distance(&word, &x)).collect();
 
