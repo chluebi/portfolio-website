@@ -26,6 +26,13 @@ impl PartialOrd for JaccardScore {
 }
 
 
+fn get_word_trigrams(word: &str) -> Vec<String> {
+    let chars: Vec<char> = format!("*{}*", word).chars().collect();
+    chars.windows(3)
+         .map(|window| window.iter().collect())
+         .collect()
+}
+
 
 pub fn find_closest_jaccard_matches(word: &String, trigrams_map: &TrigramMap, count: usize) -> Vec<(String, f32)> {
 

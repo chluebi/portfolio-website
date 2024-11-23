@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use types::{FieldWeights, IRSystem};
 use index::{build_word_index, query_index};
-use correction::{find_closest_jaccard_matches}
+use correction::{find_closest_jaccard_matches};
 mod socket;
 mod parse;
 mod index;
