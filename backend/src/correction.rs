@@ -45,12 +45,19 @@ pub fn find_closest_jaccard_matches(word: &String, system: &IRSystem, count: usi
         if !prefix.is_empty() && !other_word.starts_with(prefix) {
             continue;
         }
+        if other_word == word {
+            continue;
+        }
 
         let other_size = other_trigrams.len();
         let intersection_size = other_trigrams.iter().filter(|&t| word_trigrams.contains(t)).count();
         let score: f32 = 
         (intersection_size as f32) / ((word_size + other_size - intersection_size) as f32)
         * (*system.word_count.get(other_word).unwrap() as f32).ln() // scaling for more common words
+        // scaling for longer suggestions
+        * if !prefix.is_empty() && other_word.len() > word.len() 
+        {((other_word.len() - word.len()) as f32).ln()} 
+        else {1.0} 
         ;
         
 
@@ -107,12 +114,21 @@ fn min_edit_distance(s1: &String, s2: &String) -> u32 {
 
 
 pub fn find_closest_match(word: &String, system: &IRSystem, sample_count: usize, prefix: &String) -> Option<(String, u32)> {
-    let matches: Vec<String> = find_closest_jaccard_matches(word, system, sample_count, prefix).iter().map(|x| x.0.clone()).collect();
+    let matches: Vec<(String, f32)> = find_closest_jaccard_matches(word, system, sample_count, prefix).iter().map(
+        |x| (x.0.clone(), x.1)
+    ).collect();
 
-    let scores: Vec<u32> = matches.iter().map(|x| min_edit_distance(&word, &x)).collect();
+    let scores: Vec<i32> = matches.iter().map(|x| 
+        (min_edit_distance(&word, &x.0) as i32) * 100
+        - (((*system.word_count.get(&x.0).unwrap() as f32).ln() * 100.0) as i32) // scaling for more common words
+        - // for longer suggestions
+        if !prefix.is_empty() && x.0.len() > word.len() 
+        {(((x.0.len() - word.len()) as f32).ln() * 100.0) as i32} 
+        else {0} 
+    ).collect();
 
     if let Some(min_index) = scores.iter().enumerate().min_by_key(|&(_, score)| score) {
-        Some((matches[min_index.0].clone(), *min_index.1))
+        Some((matches[min_index.0].0.clone(), *min_index.1.max(&0) as u32))
     } else {
         None
     }
