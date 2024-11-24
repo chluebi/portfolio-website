@@ -58,6 +58,9 @@ async function completion(s: String) {
     const response = await fetch('/api/completion?q=' + splitText.lastWord);
     const data = await response.json();
     const completion: string = data.results.data;
+    if (completion == "") {
+      return;
+    }
 
     console.log(completion);
 

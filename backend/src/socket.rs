@@ -56,7 +56,13 @@ pub fn handle_client(mut stream: std::net::TcpStream, system: &types::IRSystem) 
                                 // Send the response back with the same ID
                                 stream.write_all(&response.encode_to_vec()).unwrap();
                             }
-                            None => {}
+                            None => {
+                                let response: protos::Response = protos::Response {
+                                    uuid: query.uuid,
+                                    payload: Some(protos::response::Payload::Completion("".to_string()))
+                                };
+                                stream.write_all(&response.encode_to_vec()).unwrap();
+                            }
                         }
                     }
                 }
