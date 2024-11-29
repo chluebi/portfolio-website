@@ -58,31 +58,41 @@ async function completion(s: String) {
     
     const response = await fetch('/api/completion?q=' + splitText.lastWord);
     const data = await response.json();
-    const completion: string = data.results.data;
-    if (completion == "") {
-      return;
-    }
 
-    console.log(completion);
-    console.log('completion div ' + completionDiv);
-    console.log('suggestions div ' + suggestionsDiv);
+    const completion: string = data.results.data.completion;
+    console.log('Completion: ' + completion);
+    
+    if (completionDiv && completion != '') {
 
-    if (completionDiv && suggestionsDiv && completion.startsWith(splitText.lastWord.toLowerCase())) {
-      console.log(splitText);
-      if (splitText.everythingElse == "") {
-        completionDiv.innerHTML = splitText.lastWord + completion.slice(splitText.lastWord.length);
-        suggestionsDiv.innerHTML = splitText.lastWord + completion.slice(splitText.lastWord.length);
-      } else {
-        completionDiv.innerHTML = splitText.everythingElse + " " + splitText.lastWord + completion.slice(splitText.lastWord.length);
-        suggestionsDiv.innerHTML = splitText.everythingElse + " " + splitText.lastWord + completion.slice(splitText.lastWord.length);        
+      if (completion.startsWith(splitText.lastWord.toLowerCase())) {
+        if (splitText.everythingElse == "") {
+          completionDiv.innerHTML = splitText.lastWord + completion.slice(splitText.lastWord.length);
+        } else {
+          completionDiv.innerHTML = splitText.everythingElse + " " + splitText.lastWord + completion.slice(splitText.lastWord.length);    
+        }
       }
 
-      if (suggestionsDiv.innerHTML == "") {
-        suggestionsDiv.style.display = 'none';
-      } else {
+    }
+
+    const suggestion: string = data.results.data.suggestion;
+    console.log('Suggestion: ' + completion);
+    
+    if (suggestionsDiv) {
+      if (suggestion != '') {
         suggestionsDiv.style.display = 'flex';
+  
+        if (splitText.everythingElse == "") {
+          suggestionsDiv.innerHTML = suggestion;
+        } else {
+          suggestionsDiv.innerHTML = splitText.everythingElse + " " + suggestion;        
+        }
+  
+      } else {
+        suggestionsDiv.style.display = 'none';
       }
     }
+    
+
   }
 }
 

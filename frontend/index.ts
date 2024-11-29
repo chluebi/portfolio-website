@@ -54,8 +54,10 @@ function connectToBackend(retries: number) {
           resolve(projectsJson);
       }
       else if (response.has_completion) {
-        const message = response.completion;
-        resolve({ type: "completion", data: message });
+        resolve({ type: "completion", data: {
+          completion: response.completion.completion,
+          suggestion: response.completion.suggestion
+        }});
       }
     }
   });

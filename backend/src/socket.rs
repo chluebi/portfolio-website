@@ -44,26 +44,20 @@ pub fn handle_client(mut stream: std::net::TcpStream, system: &types::IRSystem) 
                         stream.write_all(&response.encode_to_vec()).unwrap();
                     }
                     _ => { // protos::QueryType::Completion
-                        let closest_match = correction::find_closest_match(&query.query, &system, 30, &query.query);
+                        let prefix_match = correction::find_closest_match(&query.query, &system, 30, &query.query);
+                        let suggestion_match = correction::find_closest_match(&query.query, &system, 30, &"".to_string());
 
-                        match closest_match {
-                            Some((closest_match, _)) => {
-                                let response: protos::Response = protos::Response {
-                                    uuid: query.uuid,
-                                    payload: Some(protos::response::Payload::Completion(closest_match))
-                                };
-        
-                                // Send the response back with the same ID
-                                stream.write_all(&response.encode_to_vec()).unwrap();
-                            }
-                            None => {
-                                let response: protos::Response = protos::Response {
-                                    uuid: query.uuid,
-                                    payload: Some(protos::response::Payload::Completion("".to_string()))
-                                };
-                                stream.write_all(&response.encode_to_vec()).unwrap();
-                            }
-                        }
+                        let response: protos::Response = protos::Response {
+                            uuid: query.uuid,
+                            payload: Some(protos::response::Payload::Completion(
+                                protos::Completion {
+                                    completion: prefix_match.unwrap_or(("".to_string(), 0)).0,
+                                    suggestion: suggestion_match.unwrap_or(("".to_string(), 0)).0
+                                }
+                            ))
+                        };
+
+                        stream.write_all(&response.encode_to_vec()).unwrap();
                     }
                 }
             },

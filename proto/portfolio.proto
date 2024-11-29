@@ -18,8 +18,13 @@ message Response {
     string uuid = 1;
     oneof payload {
         Projects projects = 2;
-        string completion = 3;
+        Completion completion = 3;
     }
+}
+
+message Completion {
+    string completion = 1;
+    string suggestion = 2;
 }
 
 message Projects {
