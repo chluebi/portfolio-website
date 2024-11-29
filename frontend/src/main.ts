@@ -50,6 +50,7 @@ async function search(s: String) {
 
 async function completion(s: String) {
   const completionDiv = document.querySelector<HTMLDivElement>("#search-completion");
+  const suggestionsDiv = document.querySelector<HTMLDivElement>("#search-suggestions");
 
   const splitText = splitLastWord(s.toString());
 
@@ -63,12 +64,23 @@ async function completion(s: String) {
     }
 
     console.log(completion);
+    console.log('completion div ' + completionDiv);
+    console.log('suggestions div ' + suggestionsDiv);
 
-    if (completionDiv && completion.startsWith(splitText.lastWord.toLowerCase())) {
+    if (completionDiv && suggestionsDiv && completion.startsWith(splitText.lastWord.toLowerCase())) {
+      console.log(splitText);
       if (splitText.everythingElse == "") {
         completionDiv.innerHTML = splitText.lastWord + completion.slice(splitText.lastWord.length);
+        suggestionsDiv.innerHTML = splitText.lastWord + completion.slice(splitText.lastWord.length);
       } else {
         completionDiv.innerHTML = splitText.everythingElse + " " + splitText.lastWord + completion.slice(splitText.lastWord.length);
+        suggestionsDiv.innerHTML = splitText.everythingElse + " " + splitText.lastWord + completion.slice(splitText.lastWord.length);        
+      }
+
+      if (suggestionsDiv.innerHTML == "") {
+        suggestionsDiv.style.display = 'none';
+      } else {
+        suggestionsDiv.style.display = 'flex';
       }
     }
   }

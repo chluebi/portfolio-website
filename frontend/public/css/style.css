@@ -77,10 +77,10 @@ input {
   
   border: 3px solid var(--primary-color-passive);
   border-color: var(--primary-color-passive);
-  border-radius: 8px;
   outline: none;
 
   transition: border-color 0.3s ease;
+  border-radius: 8px 8px 0px 0px;
 }
 input:hover {
   outline: none;
@@ -118,19 +118,28 @@ input, #search-completion {
   text-align: left;
 }
 
-
-@keyframes typing {
-  from { }
-  to { }
-}
-
-.typing-animation {
-  animation: typing 0.5s steps(30, end) forwards;
+#search-suggestions {
   color: var(--text-color-weak);
-  white-space: nowrap;
-  overflow: hidden;
-  border-right: 2px solid var(--primary-color);
+  position: absolute;
+  top: 100%;
+  margin-top: -3px;
+
+  border: 3px solid var(--primary-color);
+  border-top: 3px solid var(--text-color-weak);
+  
+  background-color: var(--primary-color-passive);
+  cursor: pointer;
+  font-size: 2em;
+
+  padding-left: 1em;
+  padding-right: 1em;
+
+  border-radius: 0px 0px 8px 8px;
+  text-align: left;
+
+  max-height: 6em;
 }
+
 
 .strong-text {
   color: var(--text-color);

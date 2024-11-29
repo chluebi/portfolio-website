@@ -17,6 +17,7 @@ function splitLastWord(str: string) {
 export function setupSearch(searchBox: HTMLInputElement, searchCallback: SearchCallback, completionCallback: SearchCallback) {
 
   const completionDiv = document.querySelector<HTMLDivElement>("#search-completion");
+  const suggestionDiv = document.querySelector<HTMLDivElement>("#search-suggestions");
 
   searchBox.addEventListener('keydown', (event) => {
     if (event.key == "Tab") {
