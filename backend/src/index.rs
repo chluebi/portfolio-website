@@ -2,7 +2,8 @@ use std::collections::{BTreeMap, HashMap};
 
 use crate::preprocessing::preprocess;
 use crate::correction;
-use crate::types::{FieldWeights, IRSystem, Index, LengthStore, PreIndex, Project, ProjectEntry, ProjectMapping, QueryResult, TrigramMap, WordCountMap};
+
+use crate::types::{FieldWeights, IRSystem, Index, LengthStore, PreIndex, Project, ProjectEntry, ProjectMapping, QueryResult, TrigramMap, TermScoreMap};
 
 
 fn add_word_to_index(word: &String, index: &mut PreIndex, term_count_map: &mut HashMap<String, u32>, project: &Project) {
@@ -31,6 +32,7 @@ fn add_word_to_index(word: &String, index: &mut PreIndex, term_count_map: &mut H
     }
 }
 
+
 fn turn_term_count_into_length(term_count_map: &HashMap<String, u32>) -> f32 {
     let mut project_length: f32 = 0 as f32;
     for (_, count) in term_count_map.iter() {
@@ -51,7 +53,7 @@ fn get_word_trigrams(word: &str) -> Vec<String> {
 
 
 
-pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
+pub fn build_word_index(projects: Vec<Project>, scores: &FieldWeights) -> IRSystem {
     let mut title_preindex: PreIndex = BTreeMap::new();
     let mut description_preindex: PreIndex = BTreeMap::new();
     let mut languages_preindex: PreIndex = BTreeMap::new();
@@ -65,7 +67,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
     let mut files_lengths: LengthStore = HashMap::new();
 
     let mut trigrams: TrigramMap = HashMap::new();
-    let mut wordcount: WordCountMap = HashMap::new();
+    let mut term_scores: TermScoreMap = HashMap::new();
 
     let mut mapping: ProjectMapping = HashMap::new();
 
@@ -78,7 +80,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
                 trigrams.insert(word.clone(), get_word_trigrams(&word));
             }
 
-            *wordcount.entry(word).or_insert(1) += 1;
+            *term_scores.entry(word).or_insert(0.0) += scores.title;
         }
         title_lengths.insert(project.id, turn_term_count_into_length(&title_term_count_map));
 
@@ -91,7 +93,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
                 trigrams.insert(word.clone(), get_word_trigrams(&word));
             }
 
-            *wordcount.entry(word).or_insert(1) += 1;
+            *term_scores.entry(word).or_insert(0.0) += scores.description;
         }
         description_lengths.insert(project.id, turn_term_count_into_length(&description_term_count_map));
 
@@ -105,7 +107,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
                     trigrams.insert(word.clone(), get_word_trigrams(&word));
                 }
 
-                *wordcount.entry(word).or_insert(1) += 1;
+                *term_scores.entry(word).or_insert(0.0) += scores.languages;
             }
         }
         languages_lengths.insert(project.id, turn_term_count_into_length(&languages_term_count_map));
@@ -120,7 +122,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
                     trigrams.insert(word.clone(), get_word_trigrams(&word));
                 }
 
-                *wordcount.entry(word).or_insert(1) += 1;
+                *term_scores.entry(word).or_insert(0.0) += scores.tags;
             }
         }
         tags_lengths.insert(project.id, turn_term_count_into_length(&tags_term_count_map));
@@ -135,7 +137,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
                     trigrams.insert(word.clone(), get_word_trigrams(&word));
                 }
 
-                *wordcount.entry(word).or_insert(1) += 1;
+                *term_scores.entry(word).or_insert(0.0) += scores.files;
             }
         }
         files_lengths.insert(project.id, turn_term_count_into_length(&files_term_count_map));
@@ -186,7 +188,7 @@ pub fn build_word_index(projects: Vec<Project>) -> IRSystem {
         tags_index: (tags_index, tags_lengths),
         files_index: (files_index, files_lengths),
         trigrams: trigrams,
-        word_count: wordcount,
+        term_scores: term_scores,
         mapping: mapping
     };
 }

@@ -45,20 +45,24 @@ pub fn find_closest_jaccard_matches(word: &String, system: &IRSystem, count: usi
         if !prefix.is_empty() && !other_word.starts_with(prefix) {
             continue;
         }
-        if other_word == word {
-            continue;
-        }
+        
+        let score = {
+            if other_word == word {
+                100.0
+            } else {
+                let other_size = other_trigrams.len();
+                let intersection_size = other_trigrams.iter().filter(|&t| word_trigrams.contains(t)).count(); 
 
-        let other_size = other_trigrams.len();
-        let intersection_size = other_trigrams.iter().filter(|&t| word_trigrams.contains(t)).count();
-        let score: f32 = 
-        (intersection_size as f32) / ((word_size + other_size - intersection_size) as f32)
-        * (*system.word_count.get(other_word).unwrap() as f32).ln() // scaling for more common words
-        // scaling for longer suggestions
-        * if !prefix.is_empty() && other_word.len() > word.len() 
-        {((other_word.len() - word.len()) as f32).ln()} 
-        else {1.0} 
-        ;
+                (intersection_size as f32) / ((word_size + other_size - intersection_size) as f32)
+                * (2.0 + *system.term_scores.get(other_word).unwrap()).ln() // scaling for more common words
+                // scaling for longer suggestions
+                * if !prefix.is_empty() && other_word.len() > word.len() 
+                {((other_word.len() - word.len()) as f32).ln()} 
+                else {1.0} 
+            } 
+        };
+
+        
         
 
         if heap.len() < count {
@@ -70,6 +74,8 @@ pub fn find_closest_jaccard_matches(word: &String, system: &IRSystem, count: usi
             }
         }
     }
+
+    println!("heap {:?}", heap);
 
     heap.into_sorted_vec().iter().map(|js| (js.word.clone(), js.score)).collect()
 }
@@ -120,10 +126,10 @@ pub fn find_closest_match(word: &String, system: &IRSystem, sample_count: usize,
 
     let scores: Vec<i32> = matches.iter().map(|x| 
         (min_edit_distance(&word, &x.0) as i32) * 100
-        - (((*system.word_count.get(&x.0).unwrap() as f32).ln() * 100.0) as i32) // scaling for more common words
+        - (((1.0 + *system.term_scores.get(&x.0).unwrap() as f32).ln() * 100.0) as i32) // scaling for more common words
         - // for longer suggestions
         if !prefix.is_empty() && x.0.len() > word.len() 
-        {(((x.0.len() - word.len()) as f32).ln() * 100.0) as i32} 
+        {(((1 + x.0.len() - word.len()) as f32).ln() * 100.0) as i32} 
         else {0} 
     ).collect();
 

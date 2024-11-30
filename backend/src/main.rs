@@ -15,7 +15,7 @@ mod correction;
 
 fn main() {
     let projects = parse::read_project_files();
-    let system = Arc::new(build_word_index(projects));
+    let system = Arc::new(build_word_index(projects, &types::FieldWeights {title: 1.0, description: 0.2, languages: 0.4, tags: 0.3, files: 0.00001}));
     // test query
     query_index(&system, "bython abc wow".to_string(), FieldWeights {title: 0.5, description: 0.2, languages: 0.4, tags: 0.3, files: 0.1});
     let closest_match = find_closest_match(&"pyaathonic".to_string(), &system, 20, &"pyt".to_string());

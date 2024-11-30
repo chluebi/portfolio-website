@@ -58,7 +58,7 @@ pub type LengthStore = HashMap<u32, f32>;
 pub type IndexWithLengths = (Index, LengthStore);
 
 pub type TrigramMap = HashMap<String, Vec<String>>;
-pub type WordCountMap = HashMap<String, u32>;
+pub type TermScoreMap = HashMap<String, f32>;
 
 pub type ProjectMapping = HashMap<u32, Project>;
 
@@ -70,7 +70,7 @@ pub struct IRSystem {
     pub files_index: IndexWithLengths,
 
     pub trigrams: TrigramMap,
-    pub word_count: WordCountMap,
+    pub term_scores: TermScoreMap,
 
     pub mapping: ProjectMapping
 }
